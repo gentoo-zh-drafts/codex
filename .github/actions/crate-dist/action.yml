@@ -1,0 +1,35 @@
+# Temporary: pycargoebuild takes the first Cargo.lock in a git crate as the
+# workspace root, so microsoft/mxc's mxc-sdk is not found.  Remove this action
+# and the crate-dist-action input in crates.yml once it is fixed upstream.
+name: Create and publish a crate tarball (patched pycargoebuild)
+description: Run projg2/crate-dist-action with a fixed pycargoebuild preinstalled
+inputs:
+  tag:
+    description: Tag to create release on
+    default: ${{ github.ref_name }}
+  dist-filename:
+    description: The name of distribution file (e.g. foo-1.2.3-crates.tar.xz)
+    default: ${{ github.event.repository.name }}-${{ github.ref_name }}-crates.tar.xz
+  directories:
+    description: Directories with Cargo.toml files to process
+    default: .
+  run-cargo-update:
+    description: Run "cargo update" in top-level directory
+    default: false
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.14'
+    - name: Install patched pycargoebuild
+      shell: bash
+      run: pip install "git+https://github.com/Zakkaus/pycargoebuild@0289c6cf466a5b8c98c550ae076e44d57deeb992"
+    - name: Create crate dist
+      uses: projg2/crate-dist-action@v1
+      with:
+        tag: ${{ inputs.tag }}
+        dist-filename: ${{ inputs.dist-filename }}
+        directories: ${{ inputs.directories }}
+        run-cargo-update: ${{ inputs.run-cargo-update }}

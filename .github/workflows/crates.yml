@@ -14,3 +14,6 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.ssh_key }}
           directories: codex-rs/cli
+          # Temporary: patched pycargoebuild for microsoft/mxc's mxc-sdk, see
+          # .github/actions/crate-dist/action.yml.
+          crate-dist-action: gentoo-zh-drafts/codex/.github/actions/crate-dist@crate-dist
